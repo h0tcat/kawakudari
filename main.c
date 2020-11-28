@@ -8,7 +8,9 @@ typedef struct
 {
     int x;
     int y;
-    char* chara;
+    int point;
+    char *chara;
+
 } Canue;
 
 void setup()
@@ -18,18 +20,20 @@ void setup()
     curs_set(0);
     keypad(stdscr, true);
     nodelay(stdscr, true);
-    scrollok(stdscr,true);
+    scrollok(stdscr, true);
 }
 
-void generateRock(){
-    int rockX=(rand() % 30)+1;
-    int rockY=20;
-    char* rockChar="*";
-    
-    mvprintw(rockY,rockX,rockChar);
+void generateRock()
+{
+    int rockX = (rand() % 30) + 1;
+    int rockY = 20;
+    char *rockChar = "*";
+
+    mvprintw(rockY, rockX, rockChar);
     scrl(1);
 }
 
+char pointScoreChars[128];
 void gameloop(Canue *player)
 {
     srand((unsigned)time(0UL));
@@ -50,25 +54,28 @@ void gameloop(Canue *player)
         }
 
         //プレイヤーの移動制限コード
-        if(player->x<=0)
-            player->x=0;
-        else if(player->x>=30)
-            player->x=30;
-        
-        position_chr=mvinch(player->y,player->x);
-        
-        if(position_chr=='*'){
-            mvprintw(player->y,player->x,"CRASH!");
+        if (player->x <= 0)
+            player->x = 0;
+        else if (player->x >= 30)
+            player->x = 30;
+
+        position_chr = mvinch(player->y, player->x);
+
+        if (position_chr == '*')
+        {
+            mvprintw(player->y, player->x, "CRASH!");
+            
+            sprintf(pointScoreChars, "SCORE: %05d", player->point);
+            mvprintw(25, 15, pointScoreChars);
             nodelay(stdscr, false);
             getch();
             break;
         }
-        
 
-        //clear();
         mvprintw(player->y, player->x, player->chara);
         generateRock();
         usleep(82000);
+        player->point++;
     }
 }
 
@@ -79,7 +86,8 @@ int main(void)
     Canue player = {
         .chara = "O",
         .x = 15,
-        .y = 5
+        .y = 5,
+        .point = 0,
     };
     gameloop(&player);
     endwin();
